@@ -446,7 +446,7 @@ class TextConverter(tkinter.Tk):
             self.display_page()
 
     def next_page_btn_clicked(self):
-        if self.page_index < (len(self.pages) - 1):
+        if self.page_index < (len(self.pages) - 1): # No need to do anything if it's already the last page.
             self.page_index += 1
             self.update_current_page_label()
             self.display_page()
