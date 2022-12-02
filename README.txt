@@ -1,0 +1,10 @@
+# Text2MinecraftBook
+Provides a GUI to convert text into a format that can be pasted into a Minecraft book&amp;quill.
+
+## How to use:
+- Copy text into the left text field.
+- Hit 'Convert Text'.
+- Inspect your converted text in the right text field.
+- Navigate through the pages with 'Previous Page', 'Next Page' or jumpt to a particular page with 'Go to Page'.
+- If happy with the result hit 'Save Pages' to chose a directory to save the individual pages in.
+- Pages will be saved as 'page1.txt', 'page2.txt' and so on.
