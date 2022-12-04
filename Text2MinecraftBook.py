@@ -18,6 +18,18 @@ import tkinter
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import scrolledtext
+import re
+import sys
+
+# Check if module pyautogui can be imported since it's not part of the standard library.
+try:
+    import pyautogui
+except ModuleNotFoundError as err:
+    messagebox.showerror(
+        title='Error: Missing python module',
+        message='Failed to import python module <pyautogui>'
+    )
 
 def construct_pages(customized_line_list):
 
@@ -265,7 +277,7 @@ class TextConverter(tkinter.Tk):
             width=30
         )
         self.original_text_field.pack()
-
+        
         return frame
 
     def create_output_frame(self):
@@ -369,12 +381,25 @@ class TextConverter(tkinter.Tk):
         )
         self.page_choice_entry.state(['disabled'])
 
+        # Paste pages btn
+        self.paste_pages_btn = ttk.Button(
+            frame,
+            text='Paste Pages',
+            command=self.paste_pages_btn_clicked
+        )
+        self.paste_pages_btn.grid(
+            column=0,
+            row=2,
+        )
+        self.paste_pages_btn.state(['disabled'])
+
         for widget in frame.winfo_children():
             widget.grid(
                 ipadx=5,
                 ipady=5,
                 padx=5,
-                pady=5
+                pady=5,
+                sticky='ew'
             )
 
         return frame
@@ -393,6 +418,7 @@ class TextConverter(tkinter.Tk):
                 self.go_to_page_btn.state(['disabled'])
                 self.page_choice_entry.state(['disabled'])
             self.save_btn.state(['!disabled'])
+            self.paste_pages_btn.state(['!disabled'])
 
             self.page_index = 0
             self.update_current_page_label()
@@ -458,10 +484,120 @@ class TextConverter(tkinter.Tk):
             # Construct file path
             path = save_dir + '/page' + str(index + 1) + '.txt'
             try:
-                with open(path, 'w') as f:
+                with open(path, 'w', encoding='utf-8') as f:
                     f.write(page)
             except PermissionError:
                 return
+
+    def paste_pages_btn_clicked(self):
+
+        if 'pyautogui' in sys.modules.keys():
+            self.lower()
+            MinecraftBookWriter(self.pages)
+        else:
+            # Inform user that pyautogui module is needed for this function
+            messagebox.showerror(
+                title='Error: Missing python module',
+                message='Failed to import python module <pyautogui>.\nModule is required for this feature.'
+            )
+
+class MinecraftBookWriter(tkinter.Toplevel):
+
+    def __init__(self, pages):
+        super().__init__()
+
+        self.pages = pages
+
+        self.turn_page_arrow_position = (None, None)
+        self.get_turn_page_arrow_position()
+
+    def get_turn_page_arrow_position(self):
+
+        self.title('Pick position of arrow to turn page')
+        self.state('zoomed')
+        self.attributes('-alpha', 0.5)
+        self.bind('<Button-1>', self.confirm_turn_page_arrow_position) # Check for left mouse btn click -> Ask user to confirm position
+
+    def confirm_turn_page_arrow_position(self, arrow_position):
+
+        self.unbind('<Button-1>')
+        arrow_position	 = str(arrow_position)
+        x = int(re.search(r'x=\d+', arrow_position).group(0).removeprefix('x='))
+        y = int(re.search(r'y=\d+', arrow_position).group(0).removeprefix('y='))
+
+        self.turn_page_arrow_position = (x, y)
+        print(self.turn_page_arrow_position, pyautogui.position())
+
+        self.display_turn_page_arrow_position()
+
+        self.confirmation_window = tkinter.Toplevel()
+        self.confirmation_window.title('Confirm position of arrow to turn page')
+        self.confirmation_window.geometry(f'+{self.turn_page_arrow_position[0]}+{self.turn_page_arrow_position[1]}')
+        ttk.Label(self.confirmation_window, text='Happy with placement?').pack(padx=5, pady=5)
+        ttk.Button(
+            self.confirmation_window, 
+            text='Confirm', 
+            command=self.confirm_btn_clicked
+        ).pack(pady=2.5)
+        ttk.Button(
+            self.confirmation_window,
+            text='Retry', 
+            command=self.retry_btn_clicked
+        ).pack(pady=5)
+
+    def display_turn_page_arrow_position(self):
+
+        #self.title('Confirm position of arrow to turn page')
+        canvas = tkinter.Canvas(self, bg='white')
+        canvas.pack(fill='both', expand=True)
+
+        # Draw X over self.turn_page_arrow_position
+        top_left = (self.turn_page_arrow_position[0] - 10, self.turn_page_arrow_position[1] - 10)
+        bottom_left = (self.turn_page_arrow_position[0] - 10, self.turn_page_arrow_position[1] + 10)
+        top_right = (self.turn_page_arrow_position[0] + 10, self.turn_page_arrow_position[1] - 10)
+        bottom_right = (self.turn_page_arrow_position[0] + 10, self.turn_page_arrow_position[1] + 10)
+        
+        # Line top_left -> bottom_right
+        canvas.create_line(top_left, bottom_right, width=3, fill='red')
+
+        # Line bottom_left -> top_right
+        canvas.create_line(bottom_left, top_right, width=3, fill='red')
+
+    def confirm_btn_clicked(self):
+
+        # Close toplevel window
+        self.confirmation_window.destroy()
+        self.lower()
+        self.paste_2_Minecraft_book()
+
+    def retry_btn_clicked(self):
+        # Close toplevel window
+        self.confirmation_window.destroy()
+
+        # Clear window
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.get_turn_page_arrow_position()
+
+    def paste_2_Minecraft_book(self):
+        pyautogui_arrow_pos = (self.turn_page_arrow_position[0], self.turn_page_arrow_position[1] + 23) # y value anomaly -> read next line comment
+        # pyautogui registeres the y coordinate differently compared to tkinter
+        # tkinter_y + 23 pixels = pyautogui_y 
+        # Don't ask me why
+        
+        # Click 50 pixels above arrow to take focus of game
+        pyautogui.click(pyautogui_arrow_pos[0], pyautogui_arrow_pos[1] + 50)
+
+        # Start pasting pages
+        last_page_index = len(self.pages) - 1
+        for index, page in enumerate(self.pages):
+            if index != last_page_index:
+                pyautogui.write(page)
+                pyautogui.click(pyautogui_arrow_pos[0], pyautogui_arrow_pos[1])
+            else:
+                pyautogui.write(page)
+                
+        self.destroy()
 
 def main():
     app = TextConverter()
