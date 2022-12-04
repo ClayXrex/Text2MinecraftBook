@@ -582,7 +582,7 @@ class MinecraftBookWriter(tkinter.Toplevel):
     def paste_2_Minecraft_book(self):
         pyautogui_arrow_pos = (self.turn_page_arrow_position[0], self.turn_page_arrow_position[1] + 23) # y value anomaly -> read next line comment
         # pyautogui registeres the y coordinate differently compared to tkinter
-        # tkinter_y + 23 pixels = pyautogui_y 
+        # tkinter_y + 23 pixels == pyautogui_y 
         # Don't ask me why
         
         # Click 50 pixels above arrow to take focus of game
