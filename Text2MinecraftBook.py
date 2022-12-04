@@ -508,9 +508,26 @@ class MinecraftBookWriter(tkinter.Toplevel):
 
         self.pages = pages
 
-        self.turn_page_arrow_position = (None, None)
-        self.get_turn_page_arrow_position()
+        ttk.Label(
+            self,
+            text='Is the game running in the background and a book&quill opened on the page you want to start pasting in?'
+        ).pack()
+        ttk.Button(
+            self,
+            text='Confirm',
+            command=self.get_turn_page_arrow_position
+        ).pack()
 
+        for widget in self.winfo_children():
+            widget.pack(
+                ipadx=5,
+                ipady=5,
+                padx=5,
+                pady=5
+        )
+
+        self.turn_page_arrow_position = (None, None)
+        
     def get_turn_page_arrow_position(self):
 
         self.title('Pick position of arrow to turn page')
