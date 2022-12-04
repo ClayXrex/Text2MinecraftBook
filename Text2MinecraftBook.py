@@ -527,8 +527,10 @@ class MinecraftBookWriter(tkinter.Toplevel):
         )
 
         self.turn_page_arrow_position = (None, None)
-        
+
     def get_turn_page_arrow_position(self):
+        for widget in self.winfo_children():
+            widget.destroy()
 
         self.title('Pick position of arrow to turn page')
         self.state('zoomed')
@@ -550,6 +552,7 @@ class MinecraftBookWriter(tkinter.Toplevel):
         self.confirmation_window = tkinter.Toplevel()
         self.confirmation_window.title('Confirm position of arrow to turn page')
         self.confirmation_window.geometry(f'+{self.turn_page_arrow_position[0]}+{self.turn_page_arrow_position[1]}')
+        self.confirmation_window.bind('<Destroy>', self.destroyed_confirmation_window)
         ttk.Label(self.confirmation_window, text='Happy with placement?').pack(padx=5, pady=5)
         ttk.Button(
             self.confirmation_window, 
@@ -614,6 +617,10 @@ class MinecraftBookWriter(tkinter.Toplevel):
             else:
                 pyautogui.write(page)
                 
+        self.destroy()
+
+    def destroyed_confirmation_window(self, event):
+        self.confirmation_window.unbind('<Destroy>')
         self.destroy()
 
 def main():
