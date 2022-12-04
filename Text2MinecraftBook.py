@@ -584,6 +584,7 @@ class MinecraftBookWriter(tkinter.Toplevel):
         canvas.create_line(bottom_left, top_right, width=3, fill='red')
 
     def confirm_btn_clicked(self):
+        self.confirmation_window.unbind('<Destroy>')
 
         # Close toplevel window
         self.confirmation_window.destroy()
@@ -591,6 +592,7 @@ class MinecraftBookWriter(tkinter.Toplevel):
         self.paste_2_Minecraft_book()
 
     def retry_btn_clicked(self):
+        self.confirmation_window.unbind('<Destroy>')
         # Close toplevel window
         self.confirmation_window.destroy()
 
