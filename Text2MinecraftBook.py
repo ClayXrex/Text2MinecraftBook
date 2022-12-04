@@ -258,32 +258,13 @@ class TextConverter(tkinter.Tk):
     def create_input_frame(self):
 
         frame = ttk.Frame(self)
-        frame.columnconfigure(0, weight=1)
-        frame.columnconfigure(1, weight=1)
-
-        self.original_text_field = tkinter.Text(
+        
+        self.original_text_field = scrolledtext.ScrolledText(
             frame,
             height=14,
             width=30
         )
-        self.original_text_field.grid(
-            column=0,
-            row=0,
-        )
-
-        scrollbar = ttk.Scrollbar(
-            frame,
-            orient='vertical',
-            command=self.original_text_field.yview
-        )
-        scrollbar.grid(
-            column=1,
-            row=0,
-            sticky='ns'
-        )
-
-        self.original_text_field['yscrollcommand'] = scrollbar.set
-
+        self.original_text_field.pack()
 
         return frame
 
