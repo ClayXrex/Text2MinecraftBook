@@ -493,7 +493,7 @@ class TextConverter(tkinter.Tk):
 
         if 'pyautogui' in sys.modules.keys():
             self.lower()
-            MinecraftBookWriter(self.pages)
+            MinecraftBookWriter(self.pages, self)
         else:
             # Inform user that pyautogui module is needed for this function
             messagebox.showerror(
@@ -503,8 +503,9 @@ class TextConverter(tkinter.Tk):
 
 class MinecraftBookWriter(tkinter.Toplevel):
 
-    def __init__(self, pages):
+    def __init__(self, pages, master):
         super().__init__()
+        self.master = master
 
         self.pages = pages
 
@@ -622,6 +623,7 @@ class MinecraftBookWriter(tkinter.Toplevel):
         self.destroy()
 
     def destroyed_confirmation_window(self, event):
+        self.master.lift()
         self.confirmation_window.unbind('<Destroy>')
         self.destroy()
 
