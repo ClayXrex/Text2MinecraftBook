@@ -623,8 +623,8 @@ class MinecraftBookWriter(tkinter.Toplevel):
         self.destroy()
 
     def destroyed_confirmation_window(self, event):
-        self.master.lift()
         self.confirmation_window.unbind('<Destroy>')
+        self.master.lift()
         self.destroy()
 
 def main():
