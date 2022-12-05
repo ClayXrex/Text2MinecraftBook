@@ -546,13 +546,15 @@ class MinecraftBookWriter(tkinter.Toplevel):
         y = int(re.search(r'y=\d+', arrow_position).group(0).removeprefix('y='))
 
         self.turn_page_arrow_position = (x, y)
-        print(self.turn_page_arrow_position, pyautogui.position())
 
         self.display_turn_page_arrow_position()
 
         self.confirmation_window = tkinter.Toplevel()
-        self.confirmation_window.title('Confirm position of arrow to turn page')
-        self.confirmation_window.geometry(f'+{self.turn_page_arrow_position[0]}+{self.turn_page_arrow_position[1]}')
+        self.confirmation_window.title('Confirm position') # of arrow to turn page')
+
+        confirmation_window_position = self.get_confirmation_window_position()
+
+        self.confirmation_window.geometry(f'300x100+{confirmation_window_position[0]}+{confirmation_window_position[1]}')
         self.confirmation_window.bind('<Destroy>', self.destroyed_confirmation_window)
         ttk.Label(self.confirmation_window, text='Happy with placement?').pack(padx=5, pady=5)
         ttk.Button(
@@ -626,6 +628,42 @@ class MinecraftBookWriter(tkinter.Toplevel):
         self.confirmation_window.unbind('<Destroy>')
         self.master.lift()
         self.destroy()
+
+    def get_confirmation_window_position(self):
+        screen_width, screen_height = pyautogui.size()
+        # Calculate distances between self.turn_page_arrow_position and screen edges.
+        distance_arrow_position_to_screen_edge = {
+            'from_left_edge'    : self.turn_page_arrow_position[0],
+            'from_right_edge'   : (screen_width - self.turn_page_arrow_position[0]),
+            #'from_top_edge'     : self.turn_page_arrow_position[1],
+            'from_bottom_edge'  : (screen_height - self.turn_page_arrow_position[1])
+        }
+
+        # self.confirmation_window should spawn centered below self.turn_page_arrow_position unless there is not enough space.
+        confirmation_window_position = ['x', 'y']
+        # Calculate confirmation_window_position[0]
+        if distance_arrow_position_to_screen_edge['from_left_edge'] < 150:
+            confirmation_window_position[0] = 1
+        elif distance_arrow_position_to_screen_edge['from_right_edge'] < 150:
+            confirmation_window_position[0] = (screen_width - 301)
+        else:
+            confirmation_window_position[0] = (self.turn_page_arrow_position[0] - 150)
+        
+        # Calculate confirmation_window_position[1]
+        # Spawn self.confirmatio_window above self.turn_page_arrow_position if there is not enough space below.
+        if distance_arrow_position_to_screen_edge['from_bottom_edge'] < (100 + 50 + 23 + 40): 
+        # 100 -> height of self.confirmation_window
+        # +50 -> if there is enough space self.confirmation window should spawn 50 pixels below self.turn_page_arrow_position
+        # +23 because of y-value difference between pyautogui and tkinter
+        # pyautogui registeres the y coordinate differently compared to tkinter
+        # tkinter_y + 23 pixels == pyautogui_y 
+        # Don't ask me why
+        # another +40 because of Windows bar commonly located at the bottom taking up 40 pixels (default)
+            confirmation_window_position[1] = (self.turn_page_arrow_position[1] - 150)
+        else:
+            confirmation_window_position[1] = (self.turn_page_arrow_position[1] + 50)
+
+        return confirmation_window_position
 
 def main():
     app = TextConverter()
