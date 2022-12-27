@@ -11,4 +11,3 @@ Provides a GUI to convert text into a format that can be pasted into a Minecraft
 - Tell the program where the arrow to turn the page is by left clicking on the screen.
 - Arrow position will be marked with a red X. Confirm the correct positioning or go back to the previous step.
 - Watch your book being written.
-- Important: At this point in time there is no check how many pages you are trying to paste. It is on you to make sure that the 100 page limit on Minecraft books is respected.
