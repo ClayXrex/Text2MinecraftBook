@@ -491,15 +491,21 @@ class TextConverter(tkinter.Tk):
 
     def paste_pages_btn_clicked(self):
 
-        if 'pyautogui' in sys.modules.keys():
-            self.lower()
-            MinecraftBookWriter(self.pages, self)
-        else:
-            # Inform user that pyautogui module is needed for this function
+        if 'pyautogui' not in sys.modules.keys(): 
+             # Inform user that pyautogui module is needed for this function
             messagebox.showerror(
                 title='Error: Missing python module',
                 message='Failed to import python module <pyautogui>.\nModule is required for this feature.'
             )
+        elif len(self.pages) > 100:
+            # Remind user of 100 page limit.
+            messagebox.showerror(
+                title='Error: Exceeded page limit!',
+                message=f'You are trying to paste {len(self.pages)} pages.\nMinecraft books have a limit of 100 pages.'
+            )
+        else:
+            self.lower()
+            MinecraftBookWriter(self.pages, self)
 
 class MinecraftBookWriter(tkinter.Toplevel):
 
