@@ -229,6 +229,8 @@ class TextConverter(tkinter.Tk):
     def __init__(self):
         super().__init__()
 
+        self.pages = []
+
         self.title('Text2MinecraftBook')
         self.geometry('650x400')
         self.resizable(False, False)
@@ -393,6 +395,17 @@ class TextConverter(tkinter.Tk):
         )
         self.paste_pages_btn.state(['disabled'])
 
+        # Import pages btn
+        self.import_pages_btn = ttk.Button(
+            frame,
+            text='Import Pages',
+            command=self.import_pages_btn_clicked
+        )
+        self.import_pages_btn.grid(
+            column=2,
+            row=2
+        )
+
         for widget in frame.winfo_children():
             widget.grid(
                 ipadx=5,
@@ -404,10 +417,8 @@ class TextConverter(tkinter.Tk):
 
         return frame
 
-    def convert_btn_clicked(self):
-        self.pages = convert_text(self.original_text_field.get('1.0', 'end-1c'))
-        # converted_text is a list. Each entry is a complete page of a minecraft book.
-        
+    def set_navigation_btn_states(self):
+
         if self.pages != None:
             if len(self.pages) > 1:
                 self.next_page_btn.state(['!disabled'])
@@ -424,6 +435,34 @@ class TextConverter(tkinter.Tk):
             self.update_current_page_label()
 
             self.display_page()
+
+    def import_pages_btn_clicked(self):
+        filenames = filedialog.askopenfilenames()
+        
+        # Make sure at least one file was selected.
+        if len(filenames) != 0:
+            self.pages = []
+            for filename in filenames:
+                # Warn user when trying to import files other than a .txt file.
+                if not filename.endswith('.txt'):
+                    messagebox.showerror(
+                        title='Error: Not a .txt file',
+                        message=f'Unable to open file: <{filename}>.\nOnly .txt files can be imported.'
+                    )
+                    return
+                else:
+                    # Append content of .txt file to self.pages
+                    with open(filename, 'r') as f:
+                        #content = f.read()
+                        self.pages.append(f.read())
+
+        self.set_navigation_btn_states()
+
+    def convert_btn_clicked(self):
+        self.pages = convert_text(self.original_text_field.get('1.0', 'end-1c'))
+        # converted_text is a list. Each entry is a complete page of a minecraft book.
+        
+        self.set_navigation_btn_states()
 
     def display_page(self):
         self.pages_field['state'] = 'normal'
